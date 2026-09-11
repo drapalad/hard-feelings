@@ -195,5 +195,5 @@ Operators must add the GitHub Secret before the first PR will review. Until then
 
 #### Manual
 
-- [ ] 2.5 Human adds repository secret `OPENROUTER_API_KEY` on GitHub
+- [x] 2.5 Human adds repository secret `OPENROUTER_API_KEY` on GitHub
 - [ ] 2.6 Human opens a small same-repo PR to `master` and confirms Review job, logs, comment, and one `ai-cr:*` label
