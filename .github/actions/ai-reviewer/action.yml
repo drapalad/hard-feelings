@@ -11,6 +11,10 @@ inputs:
   openrouter-api-key:
     description: OpenRouter API key (GitHub Secret). Never echo.
     required: true
+  openrouter-model:
+    description: OpenRouter model id (GitHub Actions variable OPENROUTER_MODEL). Empty uses the reviewer default.
+    required: false
+    default: ""
 
 outputs:
   verdict:
@@ -41,12 +45,16 @@ runs:
       working-directory: ${{ github.workspace }}
       env:
         OPENROUTER_API_KEY: ${{ inputs.openrouter-api-key }}
+        OPENROUTER_MODEL: ${{ inputs.openrouter-model }}
         BASE_REF: ${{ inputs.base-ref }}
       run: |
         set -euo pipefail
         if [ -z "${OPENROUTER_API_KEY}" ]; then
           echo "OPENROUTER_API_KEY is missing. Add it as a GitHub Actions secret." >&2
           exit 1
+        fi
+        if [ -z "${OPENROUTER_MODEL}" ]; then
+          unset OPENROUTER_MODEL
         fi
         git fetch --no-tags origin "${BASE_REF}"
         git diff "origin/${BASE_REF}...HEAD" > "${RUNNER_TEMP}/pr.diff"

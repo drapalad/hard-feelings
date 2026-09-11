@@ -39,3 +39,4 @@ jobs:
           pr-number: ${{ github.event.pull_request.number || github.event.inputs.pr-number }}
           base-ref: ${{ github.base_ref || 'master' }}
           openrouter-api-key: ${{ secrets.OPENROUTER_API_KEY }}
+          openrouter-model: ${{ vars.OPENROUTER_MODEL }}
