@@ -64,6 +64,8 @@ runs:
         fi
         npm run review --workspace=code-reviewer --silent < "${RUNNER_TEMP}/pr.diff" > "${RUNNER_TEMP}/review.json"
         jq -e '.verdict == "pass" or .verdict == "fail"' "${RUNNER_TEMP}/review.json" >/dev/null
+        echo "review.json"
+        jq '{verdict, criteria, summary}' "${RUNNER_TEMP}/review.json"
         {
           echo "verdict=$(jq -r '.verdict' "${RUNNER_TEMP}/review.json")"
           echo "summary<<HF_SUMMARY"
