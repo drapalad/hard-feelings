@@ -1,0 +1,22 @@
+---
+description: Playwright E2E conventions for tests/e2e
+globs: tests/e2e/**
+alwaysApply: false
+---
+
+# E2E Testing Rules
+
+- Use getByRole, getByLabel, getByText as primary locators.
+  Fall back to getByTestId only when accessibility attributes are ambiguous.
+- Never use CSS selectors, XPath, or DOM structure for locating elements.
+- Each test must be independently runnable — no shared state between tests.
+- Never use page.waitForTimeout(). Wait for specific conditions:
+  toBeVisible(), waitForURL(), waitForResponse().
+- Assert the business outcome, not implementation details.
+- Use unique identifiers (e.g. timestamp suffix) for test data
+  to avoid collisions in parallel runs. Clean up in afterEach.
+- Use storageState for authentication — never log in through UI
+  in individual tests (`tests/e2e/auth.setup.ts` is the exception).
+- One test per file under `tests/e2e/`. Name the test after the risk it protects.
+- Model new specs on `tests/e2e/seed.spec.ts`. Drive generation with `/10x-e2e`.
+- Do not wire Playwright into `.github/workflows/ci.yml` (`npm test` stays Vitest).

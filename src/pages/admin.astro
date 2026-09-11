@@ -1,0 +1,86 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import AdminReports from "@/components/admin/AdminReports";
+import AdminLlmSettings from "@/components/admin/AdminLlmSettings";
+import { ServerError } from "@/components/auth/ServerError";
+import { OPENAI_MODEL } from "astro:env/server";
+import { createClient } from "@/lib/supabase";
+import { listAgentReports } from "@/lib/services/agent-report";
+import { getStoredCoachNotes, getStoredOpenAiModel, resolveOpenAiModel } from "@/lib/services/llm-settings";
+import type { AgentReport } from "@/types";
+
+const showPanel = Astro.locals.isAdmin;
+if (!showPanel) {
+  Astro.response.status = 404;
+}
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+let reports: AgentReport[] = [];
+let loadError: string | undefined;
+const envFallback = OPENAI_MODEL !== undefined && OPENAI_MODEL !== "" ? OPENAI_MODEL : null;
+let openaiModel: string | null = null;
+let coachNotes: string | null = null;
+let resolvedModel = resolveOpenAiModel(null, OPENAI_MODEL);
+if (showPanel && supabase) {
+  try {
+    openaiModel = await getStoredOpenAiModel(supabase);
+    coachNotes = await getStoredCoachNotes(supabase);
+    resolvedModel = resolveOpenAiModel(openaiModel, OPENAI_MODEL);
+    reports = await listAgentReports(supabase);
+  } catch (error) {
+    reports = [];
+    loadError = error instanceof Error ? error.message : "Failed to load reports";
+  }
+} else if (showPanel) {
+  loadError = "UNAVAILABLE: Supabase is not configured";
+}
+---
+
+{
+  showPanel ? (
+    <Layout title="Admin">
+      <div class="bg-cosmic min-h-screen p-4 sm:p-8">
+        <div class="relative z-10 mx-auto max-w-7xl">
+          <Topbar />
+          <div class="space-y-6">
+            <div class="rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
+              <h1 class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
+                Chat model
+              </h1>
+              <p class="mb-6 text-blue-100/80">
+                Project-wide OpenAI model for coaching chat. Members cannot change this. Clearing the field uses
+                OPENAI_MODEL, then gpt-4o-mini.
+              </p>
+              <AdminLlmSettings
+                client:load
+                openaiModel={openaiModel}
+                resolvedModel={resolvedModel}
+                envFallback={envFallback}
+                coachNotes={coachNotes}
+              />
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
+              <h2 class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
+                Algorithm feedback
+              </h2>
+              <p class="mb-6 text-blue-100/80">Hidden agent reports. Members are not notified when you review these.</p>
+              {loadError ? <ServerError message={loadError} /> : null}
+              <AdminReports client:load reports={reports} />
+            </div>
+          </div>
+          <SiteFooter />
+        </div>
+      </div>
+    </Layout>
+  ) : (
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <title>Not found</title>
+      </head>
+      <body>Not found</body>
+    </html>
+  )
+}

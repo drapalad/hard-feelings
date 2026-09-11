@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/lint.sh",
+        "timeout": 30
+      },
+      {
+        "command": ".cursor/hooks/related-tests.sh",
+        "timeout": 30
+      }
+    ]
+  }
+}

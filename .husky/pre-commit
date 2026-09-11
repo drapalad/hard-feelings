@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+export AI_AGENT=1
+npx lint-staged --concurrent false
+npx astro check

@@ -1,0 +1,26 @@
+diff --git a/src/pages/api/races.ts b/src/pages/api/races.ts
+index 1111111..2222222 100644
+--- a/src/pages/api/races.ts
++++ b/src/pages/api/races.ts
+@@ -1,8 +1,16 @@
+ import type { APIRoute } from "astro";
++"use client";
+ 
+ export const prerender = false;
+ 
+ export const POST: APIRoute = async ({ request, locals }) => {
+-  const userId = locals.user?.id;
+-  if (!userId) {
+-    return new Response(JSON.stringify({ ok: false }), { status: 401 });
+-  }
++  const body = await request.json();
++  const userId = body.userId;
+   const race = await insertRace({
+     userId,
++    name: body.name,
++    distanceKm: body.distanceKm,
+   });
+-  return jsonOk(race);
++  console.log("created race for", userId);
++  return new Response(JSON.stringify({ ok: true, race }), { status: 200 });
+ }

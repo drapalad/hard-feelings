@@ -1,0 +1,11 @@
+{
+  "criteria": {
+    "tenantIsolation": 1,
+    "hardBoundsOnAccept": 10,
+    "astroIslandConventions": 1,
+    "trustedApiSurface": 1,
+    "namedRiskTests": 1
+  },
+  "verdict": "fail",
+  "summary": "- **tenantIsolation (1/10):** The handler takes `userId` from the request body and no longer checks `locals.user`, allowing a caller to create a race for another member.\n- **hardBoundsOnAccept (10/10):** The diff does not touch Accept, propositions, or calendar persistence.\n- **astroIslandConventions (1/10):** The API route adds the inappropriate Next.js-style `\"use client\"` directive.\n- **trustedApiSurface (1/10):** The request body is not validated with Zod, accepts forged ownership and arbitrary invalid fields, and uses a raw success response instead of the established error-handling surface.\n- **namedRiskTests (1/10):** The ownership and API contract changes ship without tests for forged-body rejection or logged-out/unauthorized access."
+}

@@ -1,0 +1,118 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import DashboardTabs from "@/components/dashboard/DashboardTabs";
+import { parseDashboardTab } from "@/components/dashboard/dashboard-tabs";
+import { createClient } from "@/lib/supabase";
+import { utcMondayOf, utcToday } from "@/lib/dates";
+import { getProfile, PROFILE_PREF_DEFAULTS } from "@/lib/services/profile";
+import { listRaces } from "@/lib/services/races";
+import { listWeek, listRevisions } from "@/lib/services/plan";
+import { listLogs } from "@/lib/services/workout-log";
+import { listChat } from "@/lib/services/chat";
+import type { ChatMessage, PlanRevisionSummary, Race, TrainingUnit, Weekday, WorkoutLog } from "@/types";
+
+const { user } = Astro.locals;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+const weekStart = utcMondayOf(utcToday());
+const urlTab = Astro.url.searchParams.get("tab");
+const initialTab = parseDashboardTab(urlTab);
+let weeklyKm: number | null = null;
+let longWeekdays: Weekday[] = PROFILE_PREF_DEFAULTS.longWeekdays;
+let restWeekdays: Weekday[] = PROFILE_PREF_DEFAULTS.restWeekdays;
+let mixEasy = PROFILE_PREF_DEFAULTS.mixEasy;
+let mixThreshold = PROFILE_PREF_DEFAULTS.mixThreshold;
+let mixSpeed = PROFILE_PREF_DEFAULTS.mixSpeed;
+let lastRaceDate: string | null = null;
+let lastRaceKm: number | null = null;
+let lastRaceTimeSec: number | null = null;
+let coachNotes: string | null = null;
+let races: Race[] = [];
+let units: TrainingUnit[] = [];
+let logs: WorkoutLog[] = [];
+let messages: ChatMessage[] = [];
+let revisions: PlanRevisionSummary[] = [];
+if (supabase && user) {
+  try {
+    const profile = await getProfile(supabase, user.id);
+    weeklyKm = profile.weeklyKm;
+    longWeekdays = profile.longWeekdays;
+    restWeekdays = profile.restWeekdays;
+    mixEasy = profile.mixEasy;
+    mixThreshold = profile.mixThreshold;
+    mixSpeed = profile.mixSpeed;
+    lastRaceDate = profile.lastRaceDate;
+    lastRaceKm = profile.lastRaceKm;
+    lastRaceTimeSec = profile.lastRaceTimeSec;
+    coachNotes = profile.coachNotes;
+    races = await listRaces(supabase, user.id);
+  } catch {
+    weeklyKm = null;
+    longWeekdays = PROFILE_PREF_DEFAULTS.longWeekdays;
+    restWeekdays = PROFILE_PREF_DEFAULTS.restWeekdays;
+    mixEasy = PROFILE_PREF_DEFAULTS.mixEasy;
+    mixThreshold = PROFILE_PREF_DEFAULTS.mixThreshold;
+    mixSpeed = PROFILE_PREF_DEFAULTS.mixSpeed;
+    lastRaceDate = null;
+    lastRaceKm = null;
+    lastRaceTimeSec = null;
+    coachNotes = null;
+    races = [];
+  }
+  try {
+    units = await listWeek(supabase, user.id, weekStart);
+  } catch {
+    units = [];
+  }
+  try {
+    revisions = await listRevisions(supabase, user.id, weekStart);
+  } catch {
+    revisions = [];
+  }
+  try {
+    logs = await listLogs(supabase, user.id, weekStart);
+  } catch {
+    logs = [];
+  }
+  try {
+    // Latest thread (omit threadId). Profile/freeze pending stays keyed by this week's Monday.
+    const chat = await listChat(supabase, user.id, weekStart);
+    messages = chat.messages;
+  } catch {
+    messages = [];
+  }
+}
+---
+
+<Layout title="Dashboard">
+  <div class="bg-cosmic min-h-screen p-3 sm:p-4">
+    <div class="relative z-10 mx-auto max-w-7xl">
+      <Topbar />
+      <div class="rounded-2xl border border-white/10 bg-slate-950 p-4 text-white">
+        <DashboardTabs
+          client:load
+          initialTab={initialTab}
+          weeklyKm={weeklyKm}
+          longWeekdays={longWeekdays}
+          restWeekdays={restWeekdays}
+          mixEasy={mixEasy}
+          mixThreshold={mixThreshold}
+          mixSpeed={mixSpeed}
+          lastRaceDate={lastRaceDate}
+          lastRaceKm={lastRaceKm}
+          lastRaceTimeSec={lastRaceTimeSec}
+          coachNotes={coachNotes}
+          races={races}
+          weekStart={weekStart}
+          units={units}
+          logs={logs}
+          messages={messages}
+          revisions={revisions}
+        />
+      </div>
+      <SiteFooter />
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,41 @@
+name: Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      pr-number:
+        description: Same-repo pull request number to review
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: review-${{ github.event.pull_request.number || github.event.inputs.pr-number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Fork PRs do not receive OPENROUTER_API_KEY and cannot comment on the base repo.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', github.event.inputs.pr-number) }}
+
+      - name: AI review
+        uses: ./.github/actions/ai-reviewer
+        with:
+          pr-number: ${{ github.event.pull_request.number || github.event.inputs.pr-number }}
+          base-ref: ${{ github.base_ref || 'master' }}
+          openrouter-api-key: ${{ secrets.OPENROUTER_API_KEY }}

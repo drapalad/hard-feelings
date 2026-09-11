@@ -1,0 +1,24 @@
+## HardFeelings - MVP
+
+### Główny problem
+Planowanie i bieżące dostosowywanie treningów biegowych (pod zawody, preferencje i realnie wykonane jednostki) jest rozproszone i trudne do utrzymania poza dedykowaną aplikacją — ręczne pliki/skille nie skalują się na wielu użytkowników ani na ciągłą adaptację planu.
+
+### Najmniejszy zestaw funkcjonalności
+- Konta użytkowników i profil (preferencje: m.in. objętość km/tydzień, typy treningów, waga i inne parametry wpływające na plan)
+- Kalendarz zawodów (dodawanie/usuwanie wydarzeń, cel na zawody)
+- Generowanie i adaptacja planu biegowego algorytmami (progresja, typy jednostek: easy/tempo/próg/interwały itd.) — wyzwalane z UI („generuj plan”) lub przez agenta AI na prośbę użytkownika
+- Integracja ze Stravą oraz tryb bez Stravy (ręczne logowanie treningów lub przez chat z agentem)
+- Podgląd planu w kalendarzu, ręczna edycja treningów
+- Chat z agentem: dyskusja o treningu, korekty, dodawanie wydarzeń/preferencji; zmiany z chatu przechodzą przez walidatory algorytmiczne (rozsądne granice vs plan)
+- Panel admina: ukryte zgłoszenia luk/uwag agenta do reguł/algorytmów/skilli (bez informowania użytkownika)
+
+### Co NIE wchodzi w zakres MVP
+- Treningi siłowe / inne dyscypliny (później)
+- Specjalizacja wyłącznie trail lub wyłącznie płaskie — jeden uniwersalny planer biegowy
+- Aplikacje natywne (na początek web)
+- Współdzielenie planów między użytkownikami / social
+- Zaawansowana analityka wydajnościowa poza tym, co potrzebne do adaptacji planu
+
+### Kryteria sukcesu
+- Użytkownicy ręcznie zmieniają ≤ 25% jednostek względem planu wygenerowanego algorytmem
+- Modyfikacje zaproponowane przez AI w chacie w ≥ 80% przypadków przechodzą walidatory bez odrzucenia jako poza granicami

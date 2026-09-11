@@ -1,0 +1,43 @@
+
+mam taki przykładowy opis aplikacji:
+@temp_docs/przykladowy_opis 
+
+Chciałbym utworzyć w podobnym stylu ale opis aplikacji mojej, która będzie służyła do planowania treningów, główneie biegowych na początek. Korzystała z AI i również algorytmów do generowania treningów.
+
+Tutaj jest przykład jak próbowałem sobie to planować za pomocą sklili w formie tekstowej za pomocą skili, ale przestało to być przejrzyste i trudne do zarządzania, poza tym nie można stworzyć kolejnego użytkownika itd.
+../plan-biegowy-md-beta/
+
+Opis ma być zwięzły. Jak coś nie wiesz to dopytaj
+
+Widziałem styl 10xCards i Twoje repo z planami w Markdown + skillami — sens przejścia na właściwą aplikację jest jasny.
+
+Żeby opis MVP był celny, potrzebuję kilku decyzji:
+
+Nazwa aplikacji — masz już jakąś, czy mam zostawić placeholder (np. HardFillings / coś innego)?
+Użytkownik docelowy w MVP — tylko Ty, czy od razu konta wielu użytkowników (login + własne plany)?
+Rdzeń produktu — co jest „jedynką”?
+plan pod zawody (cel: data + dystans),
+czy też cotygodniowy plan bez startu,
+czy adaptacja planu po wykonanych treningach (jak Twój skill update)?
+Źródło danych o treningach w MVP — ręczny log, Strava, oba, czy Strava dopiero później?
+AI vs algorytmy — AI generuje/proponuje plan, a reguły (progresja km, taper, brak dwóch longów z rzędu) go walidują? Czy odwrotnie?
+Co świadomie wycinamy z MVP — siłownia/klata, trail vs tylko płaskie, aplikacja mobilna, współdzielenie planów, cele czasowe?
+Kryteria sukcesu — masz w głowie coś mierzalnego (np. % akceptacji wygenerowanych treningów, % tygodni zrealizowanych bez ręcznej przebudowy)?
+Jak odpiszesz — nawet krótko punktami — od razu złożę zwięzły opis w tym samym układzie co przykładowy.
+
+1. HardFilings,
+2. Od razu konta,
+3. Wszysyko, to ma być kompleksowy planer, który zaplanuje od początku trening i będzie go dostosowywał do zaplanowanych po drodze zawodów oraz modyfikował na podstawie realnie zrobionych treningów i parametrów urzytkownika.
+4. Strava od razu, ale opcja bez strawy również ma być użytkowa (ręczne uzupełnianie, lub przez chat z agentem).
+5. Chciałbym aby docelowa aplikacja generowała plan na podstawie algorytmów (które mogą, ale nie muszą być wyzwalane za pomocą AI - czyli użytkownik może wyklikać generuj plan, albo powiedzieć to do AI który ma możliwość robienia rzeczy za niego np. dodawać zawody itd. (jak go o to poprosi)). Dodatkowo urzytkownik przez chat może korygować błędy lub wprowadzać swoje specyfikacje. Ważne: jeśli podczas rozmowy urzytkownika z botem AI, zostanie stwierdzone, że dobrze było by poprawić/udoskonalić jakiś algorytm/skill/regułe zaszytą w system, to takie informacji powinny się pojawiać w jakimś oknie admina w profilu admina.
+czyli generalnie:
+a. (urzytkownik: klika na stronie (np. w kalendarzu lub w profilu) lub pisze do chat bota -> dodaje/usówa wydażenia albo zmienia swoje preferencje (np km/tydz, typ treningu, wage idt.)
+b. urzytkownik ma możliwość dyskucji nt. swojego treningu z chatem i wprowadzać jakieś specyfikacje za pomocą niego.
+c. Urzytkownik ma możliwość ręcznej zmiany treningów.
+d. Jeśli urzytkownik rozmawia z agentem, agent weryfikuje swoje luki i zgłasza takie uwagi które się pokazują w panelu admina (nie informuje o tym urzytkownika).
+6. Plan treningowy biegowy, nie jakiś specyficzny płaskie/traile, to ma być uniwersalna apka, w przyszłości może będzie konieczność dodania dodatkowych treningów tj. siłownia.
+* trening (km/typ/ przebieg(intervały/tempo/próg itd.)
+* cel na zawody
+* kalendarz zawodów.
+7. a) Jak bardzo człowiek zmienił trening względem planu wygenerowanego przez algorytm.
+b) chciałbym mieć dodatkowo algorytmy validujące które sprawdzą czy modyfikacje dodane przez AI podczas rozmowy z user będą mieścić się w rozsądnych granicach.

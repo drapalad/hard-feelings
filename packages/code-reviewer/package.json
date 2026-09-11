@@ -1,0 +1,28 @@
+{
+  "name": "code-reviewer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "scripts": {
+    "review": "tsx src/index.ts",
+    "review:fixture": "tsx src/index.ts < fixtures/synthetic.diff",
+    "eval": "tsx evals/run.ts"
+  },
+  "exports": {
+    ".": "./src/agent.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "dependencies": {
+    "@openrouter/ai-sdk-provider": "^3.0.0",
+    "ai": "^7.0.93",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "promptfoo": "0.119.14",
+    "tsx": "^4.20.5"
+  }
+}

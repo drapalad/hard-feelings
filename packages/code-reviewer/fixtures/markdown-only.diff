@@ -1,0 +1,12 @@
+diff --git a/context/foundation/lessons.md b/context/foundation/lessons.md
+index 1111111..2222222 100644
+--- a/context/foundation/lessons.md
++++ b/context/foundation/lessons.md
+@@ -1,4 +1,8 @@
+ # Lessons
+ 
++## Generate honors rest days
++
++Rest weekdays on the profile must stay empty in generatePlan. Do not fill them with 0 km recovery just to hit seven rows.
++
+ Existing notes about ownership and Accept bounds stay as they are.

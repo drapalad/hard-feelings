@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Same HardFeelings reviewDiff agent on known diffs (plural)
+
+prompts:
+  - "{{diff}}"
+
+providers:
+  - id: file://./evals/reviewer-provider.ts
+    label: openai/gpt-4o-mini
+    config:
+      model: openai/gpt-4o-mini
+  - id: file://./evals/reviewer-provider.ts
+    label: z-ai/glm-5.1
+    config:
+      model: z-ai/glm-5.1
+  - id: file://./evals/reviewer-provider.ts
+    label: deepseek/deepseek-v4-flash
+    config:
+      model: deepseek/deepseek-v4-flash
+
+tests:
+  - description: Known-bad races API diff (forged userId, use client, skipped Zod)
+    vars:
+      diff: file://./fixtures/synthetic.diff
+    assert:
+      - type: is-json
+      - type: javascript
+        value: |
+          const review = typeof output === "string" ? JSON.parse(output) : output;
+          const criteria = review?.criteria ?? {};
+          const pass =
+            review?.verdict === "fail" &&
+            Number(criteria.tenantIsolation) <= 3 &&
+            Number(criteria.astroIslandConventions) <= 3 &&
+            Number(criteria.trustedApiSurface) <= 3 &&
+            Number(criteria.namedRiskTests) <= 3;
+          return {
+            pass,
+            score: pass ? 1 : 0,
+            reason: pass
+              ? "Known-bad races fixture scored fail with low tenant/island/API/named-risk scores"
+              : `verdict=${String(review?.verdict)} tenant=${String(criteria.tenantIsolation)} island=${String(criteria.astroIslandConventions)} api=${String(criteria.trustedApiSurface)} tests=${String(criteria.namedRiskTests)}`,
+          };
+      - type: llm-rubric
+        provider: openrouter:openai/gpt-4o-mini
+        value: |
+          The review summary identifies all three defects in the git diff:
+          1. The API takes user identity (userId) from the request body instead of the session.
+          2. The API route adds a Next.js-style "use client" directive.
+          3. Mutation input is not validated with Zod; untrusted body fields are persisted.
+          Passing requires all three to be named with evidence from the diff.
+          Named-risk tests must also be called out as missing (this diff changes races API with no test).
+          Do not fail solely because Accept/calendar is scored as not-applicable (~6).
+
+  - description: Markdown-only lessons note (no product code)
+    vars:
+      diff: file://./fixtures/markdown-only.diff
+    assert:
+      - type: is-json
+      - type: javascript
+        value: |
+          const review = typeof output === "string" ? JSON.parse(output) : output;
+          const criteria = review?.criteria ?? {};
+          const untouched = ["tenantIsolation", "hardBoundsOnAccept", "trustedApiSurface", "namedRiskTests"]
+            .map((key) => Number(criteria[key]))
+            .every((n) => n >= 5 && n <= 7);
+          const pass = review?.verdict === "pass" && untouched;
+          return {
+            pass,
+            score: pass ? 1 : 0,
+            reason: pass
+              ? "Docs-only diff passed without vacuous 10s on untouched criteria"
+              : `verdict=${String(review?.verdict)} tenant=${String(criteria.tenantIsolation)} bounds=${String(criteria.hardBoundsOnAccept)} api=${String(criteria.trustedApiSurface)} tests=${String(criteria.namedRiskTests)}`,
+          };
+
+  - description: Accept skips hard bounds after LLM approval
+    vars:
+      diff: file://./fixtures/accept-skip.diff
+    assert:
+      - type: is-json
+      - type: javascript
+        value: |
+          const review = typeof output === "string" ? JSON.parse(output) : output;
+          const criteria = review?.criteria ?? {};
+          const pass =
+            review?.verdict === "fail" &&
+            Number(criteria.hardBoundsOnAccept) <= 3;
+          return {
+            pass,
+            score: pass ? 1 : 0,
+            reason: pass
+              ? "Accept-skip fixture scored fail with low hardBoundsOnAccept"
+              : `verdict=${String(review?.verdict)} bounds=${String(criteria.hardBoundsOnAccept)}`,
+          };
